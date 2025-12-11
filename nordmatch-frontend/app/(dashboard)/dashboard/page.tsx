@@ -24,6 +24,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  PieChart,
+  Pie,
 } from "recharts";
 
 // Quick Actions Data
@@ -65,6 +67,13 @@ export default function DashboardPage() {
     { name: "Interview", days: 12, fill: "#366EA6" },
     { name: "Hiring Manager Review", days: 10, fill: "#E6A23C" },
   ];
+
+  // Transform sourceOfHire for PieChart
+  const sourceOfHireChartData = sourceOfHire.map((item) => ({
+    name: item.source,
+    value: item.percentage,
+    color: item.color,
+  }));
 
   return (
     <div className="space-y-6">
@@ -247,28 +256,36 @@ export default function DashboardPage() {
                 <p className="text-sm text-neutral-500">Top hiring sources</p>
               </CardHeader>
               <CardContent className="flex-1 flex items-center gap-6">
-                {/* Donut Chart */}
+                {/* Donut Chart with Recharts */}
                 <div className="relative w-32 h-32 flex-shrink-0">
-                  <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                    {sourceOfHire.reduce((acc, source) => {
-                      const prevOffset = acc.offset;
-                      const circumference = 2 * Math.PI * 35;
-                      const dash = (source.percentage / 100) * circumference;
-                      acc.elements.push(
-                        <circle
-                          key={source.source}
-                          cx="50" cy="50" r="35"
-                          fill="none"
-                          stroke={source.color}
-                          strokeWidth="12"
-                          strokeDasharray={`${dash} ${circumference}`}
-                          strokeDashoffset={-prevOffset}
-                        />
-                      );
-                      acc.offset += dash;
-                      return acc;
-                    }, { elements: [] as React.ReactNode[], offset: 0 }).elements}
-                  </svg>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={sourceOfHireChartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={35}
+                        outerRadius={55}
+                        dataKey="value"
+                        nameKey="name"
+                        strokeWidth={0}
+                      >
+                        {sourceOfHireChartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          border: '1px solid #E5E7EB',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                          padding: '8px 12px'
+                        }}
+                        formatter={(value: number, name: string) => [`${value}%`, name]}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
 
                 {/* Legend */}
