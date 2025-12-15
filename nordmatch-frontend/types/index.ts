@@ -1,123 +1,207 @@
-// User & Authentication
+// ============== USER & AUTH TYPES ==============
+export interface Company {
+  id: string;
+  name: string;
+  logo?: string;
+  industry: string;
+  size: string;
+  location: string;
+}
+
 export interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  role: "hr_manager" | "recruiter" | "admin";
-  avatar?: string;
+  role: "admin" | "recruiter" | "hiring_manager";
   company: Company;
+  createdAt: string;
 }
 
-export interface Company {
-  id: string;
-  name: string;
-  logo?: string;
+// ============== JOB TYPES ==============
+export type JobStatus = "active" | "paused" | "draft" | "closed";
+export type JobType = "full-time" | "part-time" | "contract" | "internship";
+
+export interface JobSalary {
+  min: number;
+  max: number;
+  currency: string;
 }
 
-// Jobs
 export interface Job {
   id: string;
   title: string;
   department: string;
   location: string;
-  type: "full-time" | "part-time" | "contract" | "remote";
-  status: "active" | "paused" | "closed";
-  salary?: { min: number; max: number; currency: string };
+  type: JobType;
+  salary: JobSalary;
   description: string;
   requirements: string[];
-  postedAt: string;
-  applicantCount: number;
+  benefits: string[];
+  status: JobStatus;
+  applicants: number;
+  newApplicants: number;
+  aiScore: number;
+  postedAt: string | null;
+  deadline: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-// Candidates
+export interface JobFormData {
+  title: string;
+  department: string;
+  location: string;
+  type: JobType;
+  salaryMin: string;
+  salaryMax: string;
+  currency: string;
+  description: string;
+  requirements: string;
+  benefits: string;
+}
+
+// ============== CANDIDATE TYPES ==============
+export type CandidateStatus = "new" | "screening" | "interview" | "offer" | "hired" | "rejected";
+
 export interface Candidate {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
-  phone?: string;
-  avatar?: string;
-  currentRole: string;
-  currentCompany: string;
+  phone: string;
   location: string;
+  currentRole: string;
+  experience: number;
   skills: string[];
-  experience: number; // years
   resumeUrl?: string;
   linkedinUrl?: string;
+  portfolioUrl?: string;
+  status: CandidateStatus;
+  appliedJobId: string;
+  appliedJobTitle: string;
+  aiMatchScore: number;
   appliedAt: string;
-  source: "linkedin" | "referral" | "career_site" | "agency" | "other";
-  matchScore?: number; // AI-powered match score 0-100
+  notes: string[];
 }
 
-// Applications & Pipeline
-export interface Application {
+// ============== EMPLOYEE TYPES ==============
+export type EmployeeStatus = "active" | "on-leave" | "terminated";
+
+export interface Employee {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  department: string;
+  role: string;
+  startDate: string;
+  manager?: string;
+  status: EmployeeStatus;
+}
+
+// ============== DASHBOARD TYPES ==============
+export interface DashboardStats {
+  totalJobs: number;
+  activeJobs: number;
+  totalCandidates: number;
+  newCandidates: number;
+  interviewsScheduled: number;
+  offersExtended: number;
+  avgTimeToHire: number;
+  hiringRate: number;
+  // Additional stats for dashboard
+  timeToFill: number;
+  candidatesInPipeline: number;
+  openRequisitions: number;
+}
+
+// ============== INTERVIEW TYPES ==============
+export type InterviewType = "phone" | "video" | "onsite" | "technical_screen" | "final_round";
+export type InterviewStatus = "scheduled" | "completed" | "cancelled";
+
+export interface Interviewer {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface InterviewCandidate {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface Interview {
   id: string;
   candidateId: string;
-  candidate: Candidate;
+  candidateName: string;
+  candidate: InterviewCandidate;
   jobId: string;
-  job: Job;
-  status: PipelineStage;
-  appliedAt: string;
-  updatedAt: string;
-  notes: ApplicationNote[];
-  interviews: Interview[];
+  jobTitle: string;
+  scheduledAt: string;
+  duration: number;
+  type: InterviewType;
+  interviewers: Interviewer[];
+  status: InterviewStatus;
+  notes?: string;
 }
 
-export type PipelineStage = 
-  | "new" 
-  | "screening" 
-  | "interview" 
-  | "assessment" 
-  | "offer" 
-  | "hired" 
-  | "rejected";
+// ============== ACTIVITY TYPES ==============
+export type ActivityType = "application" | "interview" | "offer" | "hire" | "rejection";
 
-export interface ApplicationNote {
+export interface Activity {
   id: string;
+  type: ActivityType;
+  title: string;
+  description: string;
+  timestamp: string;
+  userId: string;
+  relatedId?: string;
+}
+
+// ============== MESSAGE TYPES ==============
+export interface Message {
+  id: string;
+  senderId: string;
+  senderName: string;
+  recipientId: string;
+  subject: string;
   content: string;
-  authorId: string;
-  authorName: string;
+  read: boolean;
   createdAt: string;
 }
 
-// Interviews
-export interface Interview {
-  id: string;
-  applicationId: string;
-  candidate: Pick<Candidate, "id" | "firstName" | "lastName" | "avatar">;
-  type: "phone_screen" | "technical" | "portfolio_review" | "final" | "culture_fit";
-  scheduledAt: string;
-  duration: number; // minutes
-  interviewers: Pick<User, "id" | "firstName" | "lastName" | "avatar">[];
-  location?: string;
-  meetingLink?: string;
-  status: "scheduled" | "completed" | "cancelled" | "rescheduled";
-  feedback?: string;
+// ============== CHART TYPES ==============
+export interface ChartData {
+  name: string;
+  value: number;
+  [key: string]: string | number;
 }
 
-// Dashboard Stats
-export interface DashboardStats {
-  timeToFill: number; // days
-  candidatesInPipeline: number;
-  openRequisitions: number;
-  hiredThisMonth: number;
+export interface FunnelData {
+  stage: string;
+  count: number;
+  color: string;
 }
 
+export interface MonthlyData {
+  month: string;
+  applications: number;
+  hires: number;
+}
+
+export interface SourceOfHireData {
+  source: string;
+  hires: number;
+  percentage: number;
+  color: string;
+}
+
+// ============== RECRUITMENT FUNNEL (OBJECT FORMAT) ==============
 export interface RecruitmentFunnel {
   new: number;
   inReview: number;
   interviewed: number;
   hired: number;
-}
-
-export interface SourceOfHire {
-  source: string;
-  percentage: number;
-  color: string;
-}
-
-export interface TimeInStage {
-  stage: string;
-  days: number;
 }
